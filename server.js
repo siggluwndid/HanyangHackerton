@@ -88,6 +88,13 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log("🚀 서버를 성공적으로 실행했습니다!!");
+// Render가 주는 포트를 최우선으로 잡고, 없으면 3000번을 씁니다.
+const FINAL_PORT = process.env.PORT || 3000;
+
+// 주소(0.0.0.0)를 명시해 주어야 Render 시스템이 외부 포트를 정확히 감지합니다.
+app.listen(FINAL_PORT, '0.0.0.0', () => {
+  console.log(`====================================================`);
+  console.log(`🚀 서버가 성공적으로 실행되었습니다!!`);
+  console.log(`🚀 현재 오픈된 포트: ${FINAL_PORT}`);
+  console.log(`====================================================`);
 });
