@@ -1,271 +1,415 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 프리미엄 키오스크 (포인트 적립형)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff4757;
+            --primary-light: #ff6b81;
+            --secondary-color: #2f3542;
+            --point-color: #ffa502;
+            --bg-color: #f1f2f6;
+            --card-bg: #ffffff;
+            --text-main: #2f3542;
+            --text-muted: #747d8c;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08 );
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-<title>키오스크</title>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-<style>
-body{
-    padding:20px;
-}
+        /* 헤더 스타일 */
+        header {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-h2{
-    text-align:center;
-}
+        .brand h1 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
 
-.category{
-    display:flex;
-    justify-content:center;
-    gap:40px;
-    margin:30px 0;
-}
+        .brand h1 span { color: var(--primary-color); }
 
-.category button{
-    width:230px;
-    height:230px;
-    font-size:24px;
-}
+        /* 포인트 카드 */
+        .user-point-card {
+            background: linear-gradient(135deg, var(--point-color), #ff7f50);
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(255, 165, 2, 0.3);
+            transition: 0.3s;
+        }
 
-dialog{
-    width:420px;
-    max-height:80vh;
-}
+        .user-point-card i { font-size: 1.4rem; }
+        .point-info { display: flex; flex-direction: column; }
+        .point-info .label { font-size: 0.75rem; font-weight: 500; opacity: 0.9; }
+        .point-info .value { font-size: 1.2rem; font-weight: 800; }
 
-/* 메뉴를 위에서 아래로 */
-dialog article{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    max-height:70vh;
-    overflow-y:auto;
-}
+        /* 메인 컨테이너 */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px 40px;
+            width: 100%;
+        }
 
-#cart button{
-    margin-left:10px;
-}
-</style>
+        .section-title {
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+
+        .category-card i {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .category-card span {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        /* 모달 스타일 */
+        dialog {
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0;
+            width: 95%;
+            max-width: 1000px;
+            max-height: 85vh;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content { display: flex; flex-direction: column; height: 85vh; }
+
+        .modal-header {
+            padding: 25px 35px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+
+        .close-btn {
+            background: #f1f2f6;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+
+        .close-btn:hover { background: var(--primary-color); color: white; }
+
+        /* 메뉴 그리드 */
+        .menu-scroll-area { flex: 1; overflow-y: auto; background: #f8f9fa; padding: 30px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .menu-card {
+            background: white; border-radius: var(--radius-md); overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.3s;
+            display: flex; flex-direction: column; border: 1px solid #eee;
+        }
+        .menu-card:hover { transform: translateY(-5px); border-color: var(--primary-color); }
+        .menu-img-box { width: 100%; aspect-ratio: 1.1; background: #eee; overflow: hidden; }
+        .menu-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .menu-info { padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .menu-info h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .menu-info .price { font-size: 1.2rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px; }
+        .add-btn { background: var(--secondary-color); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .add-btn:hover { background: var(--primary-color); }
+
+        /* 장바구니 영역 */
+        .cart-section { background: white; border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow); border: 2px solid #eee; }
+        #cart-list { list-style: none; max-height: 350px; overflow-y: auto; margin-bottom: 25px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f2f6; }
+        .item-info .name { font-weight: 700; font-size: 1.1rem; }
+        .item-info .qty { color: var(--text-muted); font-size: 0.9rem; }
+        .item-right { display: flex; align-items: center; gap: 15px; }
+        .item-price { font-weight: 700; font-size: 1.1rem; }
+        .del-btn { background: #fff0f0; color: #ff4757; border: none; padding: 8px; border-radius: 6px; cursor: pointer; }
+
+        /* 결제 푸터 */
+        .cart-footer { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 20px; border-top: 2px solid var(--bg-color); }
+        .summary-box { display: flex; flex-direction: column; gap: 5px; }
+        .summary-row { display: flex; gap: 15px; align-items: baseline; }
+        .summary-row .label { font-size: 0.9rem; color: var(--text-muted); }
+        .summary-row .value { font-size: 1.1rem; font-weight: 700; }
+        .summary-row.total .value { font-size: 2.2rem; font-weight: 900; color: var(--secondary-color); }
+        .summary-row.point-earn .value { color: var(--point-color); }
+        .pay-btn { background: var(--primary-color); color: white; border: none; padding: 18px 50px; border-radius: var(--radius-md); font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); transition: 0.3s; }
+        .pay-btn:hover { background: var(--primary-light); transform: scale(1.03); }
+
+        /* 완료 모달 */
+        #done-modal article { padding: 40px; text-align: center; }
+        .done-icon { font-size: 4rem; color: #2ed573; margin-bottom: 20px; }
+        .earn-badge { display: inline-block; background: #fff9e6; color: var(--point-color); padding: 10px 20px; border-radius: 50px; font-weight: 700; margin: 20px 0 30px; border: 1px dashed var(--point-color); }
+    </style>
 </head>
-
 <body>
 
-<h2>키오스크</h2>
+<header>
+    <div class="brand"><h1>SMART <span>KIOSK</span></h1></div>
+    <div class="user-point-card">
+        <i class="fas fa-coins"></i>
+        <div class="point-info">
+            <span class="label">MY POINTS</span>
+            <span class="value" id="user-points-display">0 P</span>
+        </div>
+    </div>
+</header>
 
-<div class="category">
+<div class="main-container">
+    <h2 class="section-title"><i class="fas fa-th-large"></i> 카테고리 선택</h2>
+    <div class="category-grid">
+        <div class="category-card" onclick="openMenu('fastFood')"><i class="fas fa-hamburger"></i><span>패스트푸드</span></div>
+        <div class="category-card" onclick="openMenu('restaurantMenu')"><i class="fas fa-utensils"></i><span>일반 음식점</span></div>
+        <div class="category-card" onclick="openMenu('cafeMenu')"><i class="fas fa-coffee"></i><span>카페</span></div>
+    </div>
 
-<button onclick="fastFood.showModal()">
-<br><br>
-패스트푸드
-</button>
-
-<button onclick="restaurantMenu.showModal()">
-<br><br>
-일반 음식점
-</button>
-
-<button onclick="cafeMenu.showModal()">
-<br><br>
-카페
-</button>
-
+    <h2 class="section-title"><i class="fas fa-shopping-cart"></i> 장바구니</h2>
+    <div class="cart-section">
+        <ul id="cart-list"></ul>
+        <div class="cart-footer">
+            <div class="summary-box">
+                <div class="summary-row point-earn">
+                    <span class="label">적립 예정 포인트 (5%)</span>
+                    <span class="value" id="earn-point-display">0 P</span>
+                </div>
+                <div class="summary-row total">
+                    <span class="label">최종 결제 금액</span>
+                    <span class="value" id="total-price-display">0원</span>
+                </div>
+            </div>
+            <button class="pay-btn" onclick="processPayment()">결제하기</button>
+        </div>
+    </div>
 </div>
 
-<!-- ================= 패스트푸드 ================= -->
-
+<!-- 메뉴 모달들 -->
 <dialog id="fastFood">
-
-<article>
-
-<h3>패스트푸드</h3>
-
-<button onclick="add('햄버거',5000)">햄버거 - 5,000원</button>
-<button onclick="add('치즈버거',5500)">치즈버거 - 5,500원</button>
-<button onclick="add('불고기버거',5500)">불고기버거 - 5,500원</button>
-<button onclick="add('치킨버거',6000)">치킨버거 - 6,000원</button>
-<button onclick="add('더블버거',7000)">더블버거 - 7,000원</button>
-<button onclick="add('새우버거',6500)">새우버거 - 6,500원</button>
-<button onclick="add('감자튀김',3000)">감자튀김 - 3,000원</button>
-<button onclick="add('치즈스틱',3500)">치즈스틱 - 3,500원</button>
-<button onclick="add('치킨너겟',4000)">치킨너겟 - 4,000원</button>
-<button onclick="add('콜라',2000)">콜라 - 2,000원</button>
-<button onclick="add('사이다',2000)">사이다 - 2,000원</button>
-<button onclick="add('환타',2000)">환타 - 2,000원</button>
-
-<button onclick="fastFood.close()"> 닫기</button>
-
-</article>
-
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-hamburger"></i> 패스트푸드 메뉴</h3><button class="close-btn" onclick="closeMenu('fastFood')"><i class="fas fa-times"></i></button></div>
+        <div class="menu-scroll-area"><div class="menu-grid" id="fastFood-grid"></div></div>
+    </div>
 </dialog>
-
-<!-- ================= 일반 음식점 ================= -->
 
 <dialog id="restaurantMenu">
-
-<article>
-
-<h3>일반 음식점</h3>
-
-<button onclick="add('짜장면',7000)">짜장면 - 7,000원</button>
-<button onclick="add('짬뽕',8000)">짬뽕 - 8,000원</button>
-<button onclick="add('짬짜면',9000)">짬짜면 - 9,000원</button>
-<button onclick="add('볶음밥',8500)">볶음밥 - 8,500원</button>
-<button onclick="add('탕수육',18000)">탕수육 - 18,000원</button>
-<button onclick="add('깐풍기',20000)">깐풍기 - 20,000원</button>
-<button onclick="add('김치찌개',9000)">김치찌개 - 9,000원</button>
-<button onclick="add('된장찌개',8500)">된장찌개 - 8,500원</button>
-<button onclick="add('제육볶음',10000)">제육볶음 - 10,000원</button>
-<button onclick="add('돈까스',9500)">돈까스 - 9,500원</button>
-<button onclick="add('비빔밥',9000)">비빔밥 - 9,000원</button>
-<button onclick="add('냉면',9500)">냉면 - 9,500원</button>
-
-<button onclick="restaurantMenu.close()"> 닫기</button>
-
-</article>
-
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-utensils"></i> 일반 음식점 메뉴</h3><button class="close-btn" onclick="closeMenu('restaurantMenu')"><i class="fas fa-times"></i></button></div>
+        <div class="menu-scroll-area"><div class="menu-grid" id="restaurantMenu-grid"></div></div>
+    </div>
 </dialog>
-
-<!-- ================= 카페 ================= -->
 
 <dialog id="cafeMenu">
-
-<article>
-
-<h3>카페</h3>
-
-<button onclick="add('아메리카노',4500)">아메리카노 - 4,500원</button>
-<button onclick="add('카페라떼',5000)">카페라떼 - 5,000원</button>
-<button onclick="add('바닐라라떼',5500)">바닐라라떼 - 5,500원</button>
-<button onclick="add('카푸치노',5500)">카푸치노 - 5,500원</button>
-<button onclick="add('카페모카',6000)">카페모카 - 6,000원</button>
-<button onclick="add('카라멜마끼아또',6000)">카라멜마끼아또 - 6,000원</button>
-<button onclick="add('녹차라떼',6000)">녹차라떼 - 6,000원</button>
-<button onclick="add('초코라떼',6000)">초코라떼 - 6,000원</button>
-<button onclick="add('아이스티',4000)">아이스티 - 4,000원</button>
-<button onclick="add('레몬에이드',5500)">레몬에이드 - 5,500원</button>
-<button onclick="add('치즈케이크',6500)">치즈케이크 - 6,500원</button>
-<button onclick="add('티라미수',7000)">티라미수 - 7,000원</button>
-<button onclick="add('마카롱',3000)">마카롱 - 3,000원</button>
-
-<button onclick="cafeMenu.close()"> 닫기</button>
-
-</article>
-
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-coffee"></i> 카페 메뉴</h3><button class="close-btn" onclick="closeMenu('cafeMenu')"><i class="fas fa-times"></i></button></div>
+        <div class="menu-scroll-area"><div class="menu-grid" id="cafeMenu-grid"></div></div>
+    </div>
 </dialog>
 
-<hr>
+<!-- 결제 완료 모달 -->
+<dialog id="done-modal">
+    <article>
+        <div class="done-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>결제가 완료되었습니다!</h3>
+        <p>주문이 성공적으로 접수되었습니다.</p>
+        <div class="earn-badge" id="final-earn-display">+ 0 포인트 적립됨</div>  
 
-<h3> 장바구니</h3>
-
-<ul id="cart"></ul>
-
-<h3 id="total">
-총 금액 : 0원
-</h3>
-
-<button onclick="buy()">
-구매하기
-</button>
-
-<dialog id="done">
-
-<article>
-
-<h3> 결제 완료</h3>
-
-<p>감사합니다!</p>
-
-<button onclick="done.close()">
-닫기
-</button>
-
-</article>
-
+        <button class="add-btn" style="padding: 15px 40px; font-size: 1.1rem;" onclick="closeDoneModal()">확인</button>
+    </article>
 </dialog>
 
 <script>
+    const menuData = {
+        fastFood: [
+            { name: '햄버거', price: 5000, img: '스크린샷 2026-07-19 002752.png' },
+            { name: '치즈버거', price: 5500, img: '스크린샷 2026-07-19 002810.png' },
+            { name: '불고기버거', price: 5500, img: '스크린샷 2026-07-19 002828.png' },
+            { name: '치킨버거', price: 6000, img: '스크린샷 2026-07-19 002843.png' },
+            { name: '더블버거', price: 7000, img: '스크린샷 2026-07-19 002850.png' },
+            { name: '새우버거', price: 6500, img: '스크린샷 2026-07-19 004335.png' },
+            { name: '감자튀김', price: 3000, img: '스크린샷 2026-07-19 014857.png' },
+            { name: '치즈스틱', price: 3500, img: '스크린샷 2026-07-19 015440.png' },
+            { name: '콜라', price: 2000, img: '스크린샷 2026-07-19 020707.png' },
+            { name: '사이다', price: 2000, img: '스크린샷 2026-07-19 020746.png' }
+        ],
+        restaurantMenu: [
+            { name: '짜장면', price: 7000, img: '짜장면.jpg' },
+            { name: '짬뽕', price: 7000, img: '짬뽕.jpg' },
+            { name: '짬짜면', price: 9000, img: 'WKaWKaus.jpg' },
+            { name: '볶음밥', price: 8500, img: '볶음밥.jpg' },
+            { name: '탕수육', price: 18000, img: '창수육.jpg' },
+            { name: '깐풍기', price: 20000, img: '깐풍기.jpg' },
+            { name: '김치찌개', price: 9000, img: '김치찌개.jpg' },
+            { name: '된장찌개', price: 8500, img: '된장찌개.jpg' },
+            { name: '제육볶음', price: 10000, img: '제육.jpg' },
+            { name: '돈까스', price: 9500, img: '돈까스.jpg' },
+            { name: '비빔밥', price: 9000, img: '비빔밥.jpg' },
+            { name: '냉면', price: 9500, img: '냉면.jpg' }
+        ],
+        cafeMenu: [
+            { name: '아메리카노', price: 4500, img: '아메리카노.jpg' },
+            { name: '카페라떼', price: 5000, img: '카페라떼.jpg' },
+            { name: '바닐라라떼', price: 5500, img: '바닐라라떼.jpg' },
+            { name: '카푸치노', price: 5500, img: '카푸치노.jpg' },
+            { name: '카페모카', price: 6000, img: '카페모카.jpg' },
+            { name: '카라멜마끼아또', price: 6000, img: '카라멜마끼아또.jpg' },
+            { name: '녹차라떼', price: 6000, img: '녹차라떼.jpg' },
+            { name: '초코라떼', price: 6000, img: '초코라떼.jpg' },
+            { name: '아이스티', price: 4000, img: '아이스티.jpg' },
+            { name: '레몬에이드', price: 5500, img: '레몬에이드.jpg' },
+            { name: '치즈케이크', price: 6500, img: '치즈케이크.jpg' },
+            { name: '티라미수', price: 7000, img: '티라미슈.jpg' },
+            { name: '마카롱', price: 3000, img: '마카롱.jpg' }
+        ]
+    };
 
-const cart={};
+    let userPoints = 0;
+    const cart = {};
 
-function add(name,price){
-
-    if(!cart[name]){
-        cart[name]={
-            price:price,
-            qty:0
-        };
+    function initGrids() {
+        for (const cat in menuData) {
+            const grid = document.getElementById(`${cat}-grid`);
+            menuData[cat].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'menu-card';
+                div.innerHTML = `<div class="menu-img-box"><img src="${item.img}" onerror="this.src='https://via.placeholder.com/200?text=${item.name}'"></div><div class="menu-info"><div><h4>${item.name}</h4><p class="price">${item.price.toLocaleString( )}원</p></div><button class="add-btn" onclick="addToCart('${item.name}', ${item.price})">담기</button></div>`;
+                grid.appendChild(div);
+            });
+        }
     }
 
-    cart[name].qty++;
+    function openMenu(id) { document.getElementById(id).showModal(); }
+    function closeMenu(id) { document.getElementById(id).close(); }
 
-    render();
-
-}
-
-function removeItem(name){
-
-    delete cart[name];
-
-    render();
-
-}
-
-function render(){
-
-    const ul=document.getElementById("cart");
-
-    ul.innerHTML="";
-
-    let total=0;
-
-    for(const [name,item] of Object.entries(cart)){
-
-        total+=item.price*item.qty;
-
-        const li=document.createElement("li");
-
-        li.innerHTML=`
-        ${name} (${item.qty}개)
-        - ${(item.price*item.qty).toLocaleString()}원
-        <button onclick="removeItem('${name}')">
-        삭제
-        </button>
-        `;
-
-        ul.appendChild(li);
-
+    function addToCart(name, price) {
+        if (!cart[name]) cart[name] = { price, qty: 0 };
+        cart[name].qty++;
+        updateUI();
     }
 
-    document.getElementById("total").textContent=
-    "총 금액 : "+total.toLocaleString()+"원";
+    function removeFromCart(name) { delete cart[name]; updateUI(); }
 
-}
-
-function buy(){
-
-    if(Object.keys(cart).length===0){
-
-        alert("장바구니가 비어 있습니다.");
-
-        return;
-
+    function updateUI() {
+        const list = document.getElementById('cart-list');
+        list.innerHTML = '';
+        let total = 0;
+        const items = Object.entries(cart);
+        if (items.length === 0) {
+            list.innerHTML = '<li style="text-align:center; padding:40px; color:#ccc;">장바구니가 비어 있습니다.</li>';
+        } else {
+            items.forEach(([name, item]) => {
+                const sum = item.price * item.qty;
+                total += sum;
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                li.innerHTML = `<div class="item-info"><div class="name">${name}</div><div class="qty">${item.qty}개</div></div><div class="item-right"><div class="item-price">${sum.toLocaleString()}원</div><button class="del-btn" onclick="removeFromCart('${name}')"><i class="fas fa-trash"></i></button></div>`;
+                list.appendChild(li);
+            });
+        }
+        const earnPoint = Math.floor(total * 0.05);
+        document.getElementById('total-price-display').textContent = total.toLocaleString() + '원';
+        document.getElementById('earn-point-display').textContent = earnPoint.toLocaleString() + ' P';
+        document.getElementById('user-points-display').textContent = userPoints.toLocaleString() + ' P';
     }
 
-    done.showModal();
-
-    for(const k in cart){
-
-        delete cart[k];
-
+    function processPayment() {
+        if (Object.keys(cart).length === 0) { alert("장바구니가 비어 있습니다."); return; }
+        let total = 0;
+        for (const k in cart) total += cart[k].price * cart[k].qty;
+        const earn = Math.floor(total * 0.05);
+        userPoints += earn;
+        document.getElementById('final-earn-display').textContent = `+ ${earn.toLocaleString()} 포인트 적립됨`;
+        document.getElementById('done-modal').showModal();
     }
 
-    render();
+    function closeDoneModal() {
+        document.getElementById('done-modal').close();
+        for (const k in cart) delete cart[k];
+        updateUI();
+    }
 
-}
-
+    initGrids();
+    updateUI();
 </script>
-
 </body>
 </html>
