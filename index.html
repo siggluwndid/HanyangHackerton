@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>키오스크</title>
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-    >
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 </head>
 
 <body>
@@ -35,6 +33,7 @@
             </button>
 
             <strong>로그인</strong>
+
         </header>
 
         <p>
@@ -61,20 +60,20 @@
 
 const dialog = document.getElementById("loginDialog");
 
-document.getElementById("openLogin").onclick = () =>{
+document.getElementById("openLogin").onclick = () => {
     dialog.showModal();
 };
 
-document.getElementById("closeDialog").onclick = () =>{
+document.getElementById("closeDialog").onclick = () => {
     dialog.close();
 };
 
-document.getElementById("cancelBtn").onclick = () =>{
+document.getElementById("cancel").onclick = () => {
     dialog.close();
 };
 
-document.getElementById("loginBtn").onclick = () =>{
-    location.href = "login.html";
+document.getElementById("loginBtn").onclick = () => {
+    window.location.href = "login.html";
 };
 
 </script>
