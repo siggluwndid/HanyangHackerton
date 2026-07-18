@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+<title>키오스크</title>
+
+<style>
+body{
+    padding:20px;
+}
+
+h2{
+    text-align:center;
+}
+
+.category{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    margin:30px 0;
+}
+
+.category button{
+    width:230px;
+    height:230px;
+    font-size:24px;
+}
+
+dialog{
+    width:420px;
+    max-height:80vh;
+}
+
+/* 메뉴를 위에서 아래로 */
+dialog article{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:70vh;
+    overflow-y:auto;
+}
+
+#cart button{
+    margin-left:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>키오스크</h2>
+
+<div class="category">
+
+<button onclick="fastFood.showModal()">
+<br><br>
+패스트푸드
+</button>
+
+<button onclick="restaurantMenu.showModal()">
+<br><br>
+일반 음식점
+</button>
+
+<button onclick="cafeMenu.showModal()">
+<br><br>
+카페
+</button>
+
+</div>
+
+<!-- ================= 패스트푸드 ================= -->
+
+<dialog id="fastFood">
+
+<article>
+
+<h3>패스트푸드</h3>
+
+<button onclick="add('햄버거',5000)">햄버거 - 5,000원</button>
+<button onclick="add('치즈버거',5500)">치즈버거 - 5,500원</button>
+<button onclick="add('불고기버거',5500)">불고기버거 - 5,500원</button>
+<button onclick="add('치킨버거',6000)">치킨버거 - 6,000원</button>
+<button onclick="add('더블버거',7000)">더블버거 - 7,000원</button>
+<button onclick="add('새우버거',6500)">새우버거 - 6,500원</button>
+<button onclick="add('감자튀김',3000)">감자튀김 - 3,000원</button>
+<button onclick="add('치즈스틱',3500)">치즈스틱 - 3,500원</button>
+<button onclick="add('치킨너겟',4000)">치킨너겟 - 4,000원</button>
+<button onclick="add('콜라',2000)">콜라 - 2,000원</button>
+<button onclick="add('사이다',2000)">사이다 - 2,000원</button>
+<button onclick="add('환타',2000)">환타 - 2,000원</button>
+
+<button onclick="fastFood.close()"> 닫기</button>
+
+</article>
+
+</dialog>
+
+<!-- ================= 일반 음식점 ================= -->
+
+<dialog id="restaurantMenu">
+
+<article>
+
+<h3>일반 음식점</h3>
+
+<button onclick="add('짜장면',7000)">짜장면 - 7,000원</button>
+<button onclick="add('짬뽕',8000)">짬뽕 - 8,000원</button>
+<button onclick="add('짬짜면',9000)">짬짜면 - 9,000원</button>
+<button onclick="add('볶음밥',8500)">볶음밥 - 8,500원</button>
+<button onclick="add('탕수육',18000)">탕수육 - 18,000원</button>
+<button onclick="add('깐풍기',20000)">깐풍기 - 20,000원</button>
+<button onclick="add('김치찌개',9000)">김치찌개 - 9,000원</button>
+<button onclick="add('된장찌개',8500)">된장찌개 - 8,500원</button>
+<button onclick="add('제육볶음',10000)">제육볶음 - 10,000원</button>
+<button onclick="add('돈까스',9500)">돈까스 - 9,500원</button>
+<button onclick="add('비빔밥',9000)">비빔밥 - 9,000원</button>
+<button onclick="add('냉면',9500)">냉면 - 9,500원</button>
+
+<button onclick="restaurantMenu.close()"> 닫기</button>
+
+</article>
+
+</dialog>
+
+<!-- ================= 카페 ================= -->
+
+<dialog id="cafeMenu">
+
+<article>
+
+<h3>카페</h3>
+
+<button onclick="add('아메리카노',4500)">아메리카노 - 4,500원</button>
+<button onclick="add('카페라떼',5000)">카페라떼 - 5,000원</button>
+<button onclick="add('바닐라라떼',5500)">바닐라라떼 - 5,500원</button>
+<button onclick="add('카푸치노',5500)">카푸치노 - 5,500원</button>
+<button onclick="add('카페모카',6000)">카페모카 - 6,000원</button>
+<button onclick="add('카라멜마끼아또',6000)">카라멜마끼아또 - 6,000원</button>
+<button onclick="add('녹차라떼',6000)">녹차라떼 - 6,000원</button>
+<button onclick="add('초코라떼',6000)">초코라떼 - 6,000원</button>
+<button onclick="add('아이스티',4000)">아이스티 - 4,000원</button>
+<button onclick="add('레몬에이드',5500)">레몬에이드 - 5,500원</button>
+<button onclick="add('치즈케이크',6500)">치즈케이크 - 6,500원</button>
+<button onclick="add('티라미수',7000)">티라미수 - 7,000원</button>
+<button onclick="add('마카롱',3000)">마카롱 - 3,000원</button>
+
+<button onclick="cafeMenu.close()"> 닫기</button>
+
+</article>
+
+</dialog>
+
+<hr>
+
+<h3> 장바구니</h3>
+
+<ul id="cart"></ul>
+
+<h3 id="total">
+총 금액 : 0원
+</h3>
+
+<button onclick="buy()">
+구매하기
+</button>
+
+<dialog id="done">
+
+<article>
+
+<h3> 결제 완료</h3>
+
+<p>감사합니다!</p>
+
+<button onclick="done.close()">
+닫기
+</button>
+
+</article>
+
+</dialog>
+
+<script>
+
+const cart={};
+
+function add(name,price){
+
+    if(!cart[name]){
+        cart[name]={
+            price:price,
+            qty:0
+        };
+    }
+
+    cart[name].qty++;
+
+    render();
+
+}
+
+function removeItem(name){
+
+    delete cart[name];
+
+    render();
+
+}
+
+function render(){
+
+    const ul=document.getElementById("cart");
+
+    ul.innerHTML="";
+
+    let total=0;
+
+    for(const [name,item] of Object.entries(cart)){
+
+        total+=item.price*item.qty;
+
+        const li=document.createElement("li");
+
+        li.innerHTML=`
+        ${name} (${item.qty}개)
+        - ${(item.price*item.qty).toLocaleString()}원
+        <button onclick="removeItem('${name}')">
+        삭제
+        </button>
+        `;
+
+        ul.appendChild(li);
+
+    }
+
+    document.getElementById("total").textContent=
+    "총 금액 : "+total.toLocaleString()+"원";
+
+}
+
+function buy(){
+
+    if(Object.keys(cart).length===0){
+
+        alert("장바구니가 비어 있습니다.");
+
+        return;
+
+    }
+
+    done.showModal();
+
+    for(const k in cart){
+
+        delete cart[k];
+
+    }
+
+    render();
+
+}
+
+</script>
+
+</body>
+</html>
